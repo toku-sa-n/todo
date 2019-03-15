@@ -10,13 +10,13 @@ RESET_COLOR='\\e[m'
 touch $TODO_FILE
 show_help () {
 cat<<EOF
-    Usage: todo COMMAND
-        add     TODO:   Add a todo.
-        check   NUMBER: Mark a todo as done.
-        uncheck NUMBER: Mark a todo as undone.
-        delete  NUMBER: Delete a todo.
-        show:           Show todos.
-        help:           Show this message.
+Usage: todo COMMAND
+    add     TODO:   Add a todo.
+    check   NUMBER: Mark a todo as done.
+    uncheck NUMBER: Mark a todo as undone.
+    delete  NUMBER: Delete a todo.
+    show:           Show todos.
+    help:           Show this message.
 EOF
 
 }
