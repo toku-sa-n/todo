@@ -8,6 +8,17 @@ GREEN='\\e[32m'
 RESET_COLOR='\\e[m'
 
 touch $TODO_FILE
+show_help () {
+cat<<EOF
+    Usage: todo COMMAND
+        add     TODO:   Add a todo.
+        check   NUMBER: Mark a todo as done.
+        uncheck NUMBER: Mark a todo as undone.
+        delete  NUMBER: Delete a todo.
+        show:           Show todos.
+EOF
+
+}
 case $COMMAND in
     "add" )
         echo "$2,0" >> $TODO_FILE ;;
@@ -19,13 +30,9 @@ case $COMMAND in
         sed "$2"'d' -i $TODO_FILE ;;
     "show" )
         echo -e "$(cat $TODO_FILE|sed "s/\(.\+\),0/$RED□ \1$RESET_COLOR/"|sed "s/\(.\+\),1/$GREEN✓ \1$RESET_COLOR/")"   ;;
-    * ) cat<<EOF
-    Usage: todo COMMAND
-        add     TODO:   Add a todo.
-        check   NUMBER: Mark a todo as done.
-        uncheck NUMBER: Mark a todo as undone.
-        delete  NUMBER: Delete a todo.
-        show:           Show todos.
-EOF
+    "help" )
+        show_help ;;
+    * )
+        show_help
         exit 1 ;;
 esac
