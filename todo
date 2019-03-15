@@ -16,6 +16,7 @@ cat<<EOF
         uncheck NUMBER: Mark a todo as undone.
         delete  NUMBER: Delete a todo.
         show:           Show todos.
+        help:           Show this message.
 EOF
 
 }
