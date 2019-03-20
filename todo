@@ -15,12 +15,13 @@ touch $TODO_FILE
 show_help () {
 cat<<EOF
 Usage: todo COMMAND ARGUMENTS
-    add     TODO:   Add a todo.
-    check   NUMBER: Mark a todo as done.
-    uncheck NUMBER: Mark a todo as undone.
-    delete  NUMBER: Delete a todo.
-    show:           Show todos.
-    help:           Show this message.
+    add     TODO:        Add a todo.
+    check   NUMBER:      Mark a todo as done.
+    uncheck NUMBER:      Mark a todo as undone.
+    change  NUMBER TODO: Change a todo.
+    delete  NUMBER:      Delete a todo.
+    show:                Show todos.
+    help:                Show this message.
 EOF
 }
 
@@ -45,6 +46,9 @@ case $COMMAND in
     "uncheck" )
         show_help_if_argument_is_null 1
         sed "${ARGV[1]}"'s/\(\w\+\),1/\1,0/' -i $TODO_FILE ;;
+    "change" )
+        show_help_if_argument_is_null 2
+        sed "${ARGV[1]}"'s/.\+,\([01]\)/'"${ARGV[2]}"',\1/' -i $TODO_FILE ;;
     "delete" )
         show_help_if_argument_is_null 1
         sed "${ARGV[1]}"'d' -i $TODO_FILE ;;
