@@ -68,7 +68,7 @@ case $COMMAND in
         line_index=1
         while IFS=: read -r line
         do
-            printf "%${digit_number}d" $line_index
+            printf "%${digit_number}d " $line_index
             echo -e "$(echo $line|sed "s/\(.\+\),0/$RED□ \1$RESET_COLOR/"|sed "s/\(.\+\),1/$GREEN✓ \1$RESET_COLOR/")"
             ((line_index++))
         done <"$TODO_FILE" ;;
