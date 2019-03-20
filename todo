@@ -36,21 +36,32 @@ show_help_if_argument_is_null () {
     done
 }
 
+is_number () {
+    if [[ ! $1 =~ ^[0-9]+$ ]]; then
+        echo "Invalid number: $1"
+        exit 1
+    fi
+}
+
 case $COMMAND in
     "add" )
         show_help_if_argument_is_null 1
         echo "${ARGV[1]},0" >> $TODO_FILE ;;
     "check" )
         show_help_if_argument_is_null 1
+        is_number ${ARGV[1]}
         sed "${ARGV[1]}"'s/\(\w\+\),0/\1,1/' -i $TODO_FILE ;;
     "uncheck" )
         show_help_if_argument_is_null 1
+        is_number ${ARGV[1]}
         sed "${ARGV[1]}"'s/\(\w\+\),1/\1,0/' -i $TODO_FILE ;;
     "change" )
         show_help_if_argument_is_null 2
+        is_number ${ARGV[1]}
         sed "${ARGV[1]}"'s/.\+,\([01]\)/'"${ARGV[2]}"',\1/' -i $TODO_FILE ;;
     "delete" )
         show_help_if_argument_is_null 1
+        is_number ${ARGV[1]}
         sed "${ARGV[1]}"'d' -i $TODO_FILE ;;
     "show" )
         line_index=1
