@@ -19,6 +19,7 @@ Usage: todo COMMAND ARGUMENTS
     uncheck NUMBER:      Mark a todo as undone.
     change  NUMBER TODO: Change a todo.
     delete  NUMBER:      Delete a todo.
+    subtodo NUMBER TODO: Add a subtodo.
     show:                Show todos.
     help:                Show this message.
 EOF
@@ -45,7 +46,7 @@ is_number () {
 case "${ARGV[0]}" in
     "add" )
         show_help_if_argument_is_null 1
-        echo "${ARGV[1]},0" >> $TODO_FILE ;;
+        echo "${ARGV[1]},0,0" >> $TODO_FILE ;;
 
     "check" )
         show_help_if_argument_is_null 1
@@ -67,6 +68,15 @@ case "${ARGV[0]}" in
         is_number ${ARGV[1]}
         sed "${ARGV[1]}"'d' -i $TODO_FILE ;;
 
+    "subtodo" )
+        show_help_if_argument_is_null 2
+        is_number ${ARGV[1]}
+
+        # Get the level of parent todo.
+        parent_level=`cat $TODO_FILE|sed -n "${ARGV[1]} p "|sed 's/.\+,\([0-9]\+\)/\1/'`
+        ((parent_level+=1))
+        sed "${ARGV[1]}"' a '"${ARGV[2]},0,${parent_level}" -i $TODO_FILE ;;
+
     "show" )
         # To arrange the vertical line of the indexes, calculate the digits.
         digit_number=$(echo $(wc -l $TODO_FILE|awk '{print $1}')/10+1|bc)
@@ -75,7 +85,19 @@ case "${ARGV[0]}" in
         while IFS=: read -r line
         do
             printf "%${digit_number}d " $line_index
-            echo -e "$(echo $line|sed "s/\(.\+\),0/$RED□ \1$RESET_COLOR/"|sed "s/\(.\+\),1/$GREEN✓ \1$RESET_COLOR/")"
+
+            # Check whether todo is a subgoal or not.
+            todo_level=$(echo $line|sed "s/.\+,\([0-9]\+\)/\1/")
+            indent_arrow=""
+            if [ ${todo_level} -ne 0 ]; then
+                for i in `seq $todo_level`
+                do
+                    indent_arrow+="---"
+                done
+                echo -n "$indent_arrow> "
+            fi
+
+            echo -e "$(echo $line|sed "s/\(.\+\),[0-9]\+/\1/"|sed "s/\(.\+\),0/$RED□ \1$RESET_COLOR/"|sed "s/\(.\+\),1/$GREEN✓ \1$RESET_COLOR/")"
             ((line_index++))
         done <"$TODO_FILE" ;;
 
