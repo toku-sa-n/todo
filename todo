@@ -46,33 +46,42 @@ case "${ARGV[0]}" in
     "add" )
         show_help_if_argument_is_null 1
         echo "${ARGV[1]},0" >> $TODO_FILE ;;
+
     "check" )
         show_help_if_argument_is_null 1
         is_number ${ARGV[1]}
         sed "${ARGV[1]}"'s/\(\w\+\),0/\1,1/' -i $TODO_FILE ;;
+
     "uncheck" )
         show_help_if_argument_is_null 1
         is_number ${ARGV[1]}
         sed "${ARGV[1]}"'s/\(\w\+\),1/\1,0/' -i $TODO_FILE ;;
+
     "change" )
         show_help_if_argument_is_null 2
         is_number ${ARGV[1]}
         sed "${ARGV[1]}"'s/.\+,\([01]\)/'"${ARGV[2]}"',\1/' -i $TODO_FILE ;;
+
     "delete" )
         show_help_if_argument_is_null 1
         is_number ${ARGV[1]}
         sed "${ARGV[1]}"'d' -i $TODO_FILE ;;
+
     "show" )
+        # To arrange the vertical line of the indexes, calculate the digits.
         digit_number=$(echo $(wc -l $TODO_FILE|awk '{print $1}')/10+1|bc)
         line_index=1
+
         while IFS=: read -r line
         do
             printf "%${digit_number}d " $line_index
             echo -e "$(echo $line|sed "s/\(.\+\),0/$RED□ \1$RESET_COLOR/"|sed "s/\(.\+\),1/$GREEN✓ \1$RESET_COLOR/")"
             ((line_index++))
         done <"$TODO_FILE" ;;
+
     "help" )
         show_help ;;
+
     * )
         show_help
         exit 1 ;;
