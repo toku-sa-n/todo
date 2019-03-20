@@ -7,6 +7,10 @@ RED='\\e[31m'
 GREEN='\\e[32m'
 RESET_COLOR='\\e[m'
 
+# Because from inside a function, we can't refer to command line arguments,
+# introduce ARGV array so that refer to command line arguments.
+ARGV=("$@")
+
 touch $TODO_FILE
 show_help () {
 cat<<EOF
@@ -20,31 +24,30 @@ Usage: todo COMMAND ARGUMENTS
 EOF
 }
 
+show_help_if_argument_is_null () {
+    # $1 is the number of needed arguments.
+    for argument_index in `seq $1`
+    do
+        if [ "${ARGV[$argument_index]}" = "" ]; then
+            show_help
+            exit 1
+        fi
+    done
+}
+
 case $COMMAND in
     "add" )
-        if [ "$2" = "" ]; then
-            show_help
-            exit 1
-        fi
-        echo "$2,0" >> $TODO_FILE ;;
+        show_help_if_argument_is_null 1
+        echo "${ARGV[1]},0" >> $TODO_FILE ;;
     "check" )
-        if [ "$2" = "" ]; then
-            show_help
-            exit 1
-        fi
-        sed "$2"'s/\(\w\+\),0/\1,1/' -i $TODO_FILE ;;
+        show_help_if_argument_is_null 1
+        sed "${ARGV[1]}"'s/\(\w\+\),0/\1,1/' -i $TODO_FILE ;;
     "uncheck" )
-        if [ "$2" = "" ]; then
-            show_help
-            exit 1
-        fi
-        sed "$2"'s/\(\w\+\),1/\1,0/' -i $TODO_FILE ;;
+        show_help_if_argument_is_null 1
+        sed "${ARGV[1]}"'s/\(\w\+\),1/\1,0/' -i $TODO_FILE ;;
     "delete" )
-        if [ "$2" = "" ]; then
-            show_help
-            exit 1
-        fi
-        sed "$2"'d' -i $TODO_FILE ;;
+        show_help_if_argument_is_null 1
+        sed "${ARGV[1]}"'d' -i $TODO_FILE ;;
     "show" )
         echo -e "$(cat $TODO_FILE|sed "s/\(.\+\),0/$RED□ \1$RESET_COLOR/"|sed "s/\(.\+\),1/$GREEN✓ \1$RESET_COLOR/")"   ;;
     "help" )
