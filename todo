@@ -10,7 +10,7 @@ RESET_COLOR='\\e[m'
 touch $TODO_FILE
 show_help () {
 cat<<EOF
-Usage: todo COMMAND
+Usage: todo COMMAND ARGUMENTS
     add     TODO:   Add a todo.
     check   NUMBER: Mark a todo as done.
     uncheck NUMBER: Mark a todo as undone.
@@ -18,16 +18,32 @@ Usage: todo COMMAND
     show:           Show todos.
     help:           Show this message.
 EOF
-
 }
+
 case $COMMAND in
     "add" )
+        if [ "$2" = "" ]; then
+            show_help
+            exit 1
+        fi
         echo "$2,0" >> $TODO_FILE ;;
     "check" )
+        if [ "$2" = "" ]; then
+            show_help
+            exit 1
+        fi
         sed "$2"'s/\(\w\+\),0/\1,1/' -i $TODO_FILE ;;
     "uncheck" )
+        if [ "$2" = "" ]; then
+            show_help
+            exit 1
+        fi
         sed "$2"'s/\(\w\+\),1/\1,0/' -i $TODO_FILE ;;
     "delete" )
+        if [ "$2" = "" ]; then
+            show_help
+            exit 1
+        fi
         sed "$2"'d' -i $TODO_FILE ;;
     "show" )
         echo -e "$(cat $TODO_FILE|sed "s/\(.\+\),0/$RED□ \1$RESET_COLOR/"|sed "s/\(.\+\),1/$GREEN✓ \1$RESET_COLOR/")"   ;;
