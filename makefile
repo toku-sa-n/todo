@@ -1,4 +1,4 @@
 install:
-	cp todo /usr/bin/todo
+	cp todo.sh /usr/bin/todo
 uninstall:
 	rm /usr/bin/todo
