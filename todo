@@ -1,6 +1,5 @@
 #!/bin/bash
 
-COMMAND=$1
 TODO_FILE=~/.todo
 
 RED='\\e[31m'
@@ -43,7 +42,7 @@ is_number () {
     fi
 }
 
-case $COMMAND in
+case "${ARGV[0]}" in
     "add" )
         show_help_if_argument_is_null 1
         echo "${ARGV[1]},0" >> $TODO_FILE ;;
