@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# The format of TODO_FILE
+# {content of todo},{done(1) or undone(0)},{level}
+# level: 0 is root. level of subtodos starts from 1.
+
 TODO_FILE=~/.todo
 
 RED='\\e[31m'
@@ -43,6 +47,9 @@ is_number () {
     fi
 }
 
+# TODO: Use awk instead of sed ASAP.
+# TODO: Separate into functions.
+
 case "${ARGV[0]}" in
     "add" )
         show_help_if_argument_is_null 1
@@ -51,12 +58,12 @@ case "${ARGV[0]}" in
     "check" )
         show_help_if_argument_is_null 1
         is_number ${ARGV[1]}
-        sed "${ARGV[1]}"'s/\(\w\+\),0/\1,1/' -i $TODO_FILE ;;
+        sed "${ARGV[1]}"'s/\(\w\+\),0,\([0-9]\+\)/\1,1,\2/' -i $TODO_FILE ;;
 
     "uncheck" )
         show_help_if_argument_is_null 1
         is_number ${ARGV[1]}
-        sed "${ARGV[1]}"'s/\(\w\+\),1/\1,0/' -i $TODO_FILE ;;
+        sed "${ARGV[1]}"'s/\(\w\+\),1,\([0-9]\+\)/\1,0,\2/' -i $TODO_FILE ;;
 
     "change" )
         show_help_if_argument_is_null 2
@@ -66,8 +73,28 @@ case "${ARGV[0]}" in
     "delete" )
         show_help_if_argument_is_null 1
         is_number ${ARGV[1]}
-        sed "${ARGV[1]}"'d' -i $TODO_FILE ;;
 
+        # Delete the specified todo.
+        sed "${ARGV[1]}"'d' -i $TODO_FILE
+
+        # Decrease the level of subtodos which followed the deleted todo.
+        line=${ARGV[1]}
+        while true
+        do
+            if [ $line -gt `wc -l $TODO_FILE|awk '{print $1}'` ]; then
+                exit
+            fi
+
+            level=`cat $TODO_FILE|awk -F "," '{print $3}'|sed -n "$line p"`
+            if [ $level -eq 0 ]; then
+                exit
+            fi
+
+            ((level--))
+            sed "$line"'s/[0-9]\+$/'"$level/" -i $TODO_FILE
+            ((line++))
+        done
+        ;;
     "subtodo" )
         show_help_if_argument_is_null 2
         is_number ${ARGV[1]}
@@ -92,7 +119,7 @@ case "${ARGV[0]}" in
             if [ ${todo_level} -ne 0 ]; then
                 for i in `seq $todo_level`
                 do
-                    indent_arrow+="---"
+                    indent_arrow+="-"
                 done
                 echo -n "$indent_arrow> "
             fi
