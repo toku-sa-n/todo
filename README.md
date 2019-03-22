@@ -29,14 +29,14 @@ A CLI Todo application for Linux users.
   Or usually, you clean your desk first of all, sort your garbage and go to garbage. So you can also add these todos like this.
   ```
   >todo add "Clean my room"
-  >todo subtodo 1 "Clean my desk"
+  >todo subtodo 1 "Go to garbage"
   >todo subtodo 2 "Sort my garbage"
-  >todo subtodo 3 "Go to garbage"
+  >todo subtodo 3 "Clean my desk"
   >todo show
   1 □ Clean my room
-  2 -> □ Clean my desk
+  2 -> □ Go to garbage
   3 --> □ Sort my garbage
-  4 ---> □ Go to garbage
+  4 ---> □ Clean my desk
   ```
   This feature will improve your productivity.
 ## How to use
