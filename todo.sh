@@ -47,6 +47,26 @@ is_number () {
     fi
 }
 
+decrease_todo_levels () {
+    # decrease the level of each todo from ln ${ARGV[1]}. if the todo of level 0(root) appear, finish the process.
+    line=${ARGV[1]}
+    while true
+    do
+        if [ $line -gt `wc -l $TODO_FILE|awk '{print $1}'` ]; then
+            exit
+        fi
+
+        level=`cat $TODO_FILE|awk -F "," '{print $3}'|sed -n "$line p"`
+        if [ $level -eq 0 ]; then
+            exit
+        fi
+
+        ((level--))
+        sed "$line"'s/[0-9]\+$/'"$level/" -i $TODO_FILE
+        ((line++))
+    done
+}
+
 # TODO: Use awk instead of sed ASAP.
 # TODO: Separate into functions.
 
@@ -78,22 +98,7 @@ case "${ARGV[0]}" in
         sed "${ARGV[1]}"'d' -i $TODO_FILE
 
         # Decrease the level of subtodos which followed the deleted todo.
-        line=${ARGV[1]}
-        while true
-        do
-            if [ $line -gt `wc -l $TODO_FILE|awk '{print $1}'` ]; then
-                exit
-            fi
-
-            level=`cat $TODO_FILE|awk -F "," '{print $3}'|sed -n "$line p"`
-            if [ $level -eq 0 ]; then
-                exit
-            fi
-
-            ((level--))
-            sed "$line"'s/[0-9]\+$/'"$level/" -i $TODO_FILE
-            ((line++))
-        done
+        decrease_todo_levels ${ARGV[1]}
         ;;
     "subtodo" )
         show_help_if_argument_is_null 2
