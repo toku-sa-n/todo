@@ -47,6 +47,11 @@ is_number () {
     fi
 }
 
+delete_todo () {
+    # delete todo of index ${ARGV[1]}.
+    sed "${ARGV[1]}"'d' -i $TODO_FILE
+}
+
 decrease_todo_levels () {
     # decrease the level of each todo from ln ${ARGV[1]}. if the todo of level 0(root) appear, finish the process.
     line=${ARGV[1]}
@@ -95,7 +100,7 @@ case "${ARGV[0]}" in
         is_number ${ARGV[1]}
 
         # Delete the specified todo.
-        sed "${ARGV[1]}"'d' -i $TODO_FILE
+        delete_todo ${ARGV[1]}
 
         # Decrease the level of subtodos which followed the deleted todo.
         decrease_todo_levels ${ARGV[1]}
