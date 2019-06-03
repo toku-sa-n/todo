@@ -61,17 +61,17 @@ case "${ARGV[0]}" in
     "check" )
         show_help_if_argument_is_null 1
         is_number ${ARGV[1]}
-        sed "${ARGV[1]}"'s/\(\w\+\),0,\([0-9]\+\)/\1,1,\2/' -i $TODO_FILE ;;
+        sed -r "${ARGV[1]}"'s/(\w+),0,([0-9]+)/\1,1,\2/' -i $TODO_FILE ;;
 
     "uncheck" )
         show_help_if_argument_is_null 1
         is_number ${ARGV[1]}
-        sed "${ARGV[1]}"'s/\(\w\+\),1,\([0-9]\+\)/\1,0,\2/' -i $TODO_FILE ;;
+        sed -r "${ARGV[1]}"'s/(\w+),1,([0-9]+)/\1,0,\2/' -i $TODO_FILE ;;
 
     "change" )
         show_help_if_argument_is_null 2
         is_number ${ARGV[1]}
-        sed "${ARGV[1]}"'s/.\+,\([01]\)/'"${ARGV[2]}"',\1/' -i $TODO_FILE ;;
+        sed -r "${ARGV[1]}"'s/.+,([01]),([0-9]+)/'"${ARGV[2]}"',\1,\2/' -i $TODO_FILE ;;
 
     "delete" )
         show_help_if_argument_is_null 1
@@ -94,16 +94,17 @@ case "${ARGV[0]}" in
             fi
 
             ((level--))
-            sed "$line"'s/[0-9]\+$/'"$level/" -i $TODO_FILE
+            sed -r "$line"'s/[0-9]+$/'"$level/" -i $TODO_FILE
             ((line++))
         done
         ;;
+
     "subtodo" )
         show_help_if_argument_is_null 2
         is_number ${ARGV[1]}
 
         # Get the level of parent todo.
-        parent_level=$(cat $TODO_FILE|sed -n "${ARGV[1]} p "|sed 's/.\+,\([0-9]\+\)/\1/')
+        parent_level=$(cat $TODO_FILE|sed -n "${ARGV[1]} p "|sed -r 's/.+,([0-9]+)/\1/')
         ((parent_level+=1))
         sed "${ARGV[1]}"' a '"${ARGV[2]},0,${parent_level}" -i $TODO_FILE ;;
 
