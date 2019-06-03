@@ -4,7 +4,8 @@
 # {content of todo},{done(1) or undone(0)},{level}
 # level: 0 is root. level of subtodos starts from 1.
 
-TODO_FILE=~/.todo
+# When todo is linked file, editing it will break the link, creating a new todo file in the home directory. To avoid this, directly edit the todo file itself, rather than link file.
+TODO_FILE=$(readlink ~/.todo||echo ~/.todo)
 
 RED='\\e[31m'
 GREEN='\\e[32m'
