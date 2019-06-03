@@ -4,17 +4,20 @@
 # {content of todo},{done(1) or undone(0)},{level}
 # level: 0 is root. level of subtodos starts from 1.
 
-TODO_FILE=~/.todo
+# When todo is linked file, editing it will break the link, creating a new todo file in the home directory. To avoid this, directly edit the todo file itself, rather than link file.
+TODO_FILE=$(readlink ~/.todo||echo ~/.todo)
 
 RED='\\e[31m'
 GREEN='\\e[32m'
 RESET_COLOR='\\e[m'
 
 # Because from inside a function, we can't refer to command line arguments,
-# introduce ARGV array so that refer to command line arguments.
+# introduce ARGV array in order to refer to command line arguments.
 ARGV=("$@")
 
+# If todo file doesn't exist, create it.
 touch $TODO_FILE
+
 show_help () {
 cat<<EOF
 Usage: todo COMMAND ARGUMENTS
@@ -31,7 +34,7 @@ EOF
 
 show_help_if_argument_is_null () {
     # $1 is the number of needed arguments.
-    for argument_index in `seq $1`
+    for argument_index in $(seq $1)
     do
         if [ "${ARGV[$argument_index]}" = "" ]; then
             show_help
@@ -83,17 +86,17 @@ case "${ARGV[0]}" in
     "check" )
         show_help_if_argument_is_null 1
         is_number ${ARGV[1]}
-        sed "${ARGV[1]}"'s/\(\w\+\),0,\([0-9]\+\)/\1,1,\2/' -i $TODO_FILE ;;
+        sed -r "${ARGV[1]}"'s/(\w+),0,([0-9]+)/\1,1,\2/' -i $TODO_FILE ;;
 
     "uncheck" )
         show_help_if_argument_is_null 1
         is_number ${ARGV[1]}
-        sed "${ARGV[1]}"'s/\(\w\+\),1,\([0-9]\+\)/\1,0,\2/' -i $TODO_FILE ;;
+        sed -r "${ARGV[1]}"'s/(\w+),1,([0-9]+)/\1,0,\2/' -i $TODO_FILE ;;
 
     "change" )
         show_help_if_argument_is_null 2
         is_number ${ARGV[1]}
-        sed "${ARGV[1]}"'s/.\+,\([01]\)/'"${ARGV[2]}"',\1/' -i $TODO_FILE ;;
+        sed -r "${ARGV[1]}"'s/.+,([01]),([0-9]+)/'"${ARGV[2]}"',\1,\2/' -i $TODO_FILE ;;
 
     "delete" )
         show_help_if_argument_is_null 1
@@ -105,12 +108,13 @@ case "${ARGV[0]}" in
         # Decrease the level of subtodos which followed the deleted todo.
         decrease_todo_levels ${ARGV[1]}
         ;;
+
     "subtodo" )
         show_help_if_argument_is_null 2
         is_number ${ARGV[1]}
 
         # Get the level of parent todo.
-        parent_level=`cat $TODO_FILE|sed -n "${ARGV[1]} p "|sed 's/.\+,\([0-9]\+\)/\1/'`
+        parent_level=$(cat $TODO_FILE|sed -n "${ARGV[1]} p "|sed -r 's/.+,([0-9]+)/\1/')
         ((parent_level+=1))
         sed "${ARGV[1]}"' a '"${ARGV[2]},0,${parent_level}" -i $TODO_FILE ;;
 
@@ -124,17 +128,17 @@ case "${ARGV[0]}" in
             printf "%${digit_number}d " $line_index
 
             # Check whether todo is a subgoal or not.
-            todo_level=$(echo $line|sed "s/.\+,\([0-9]\+\)/\1/")
+            todo_level=$(echo $line|sed -r "s/.+,([0-9]+)/\1/")
             indent_arrow=""
             if [ ${todo_level} -ne 0 ]; then
-                for i in `seq $todo_level`
+                for i in $(seq $todo_level)
                 do
                     indent_arrow+="-"
                 done
                 echo -n "$indent_arrow> "
             fi
 
-            echo -e "$(echo $line|sed "s/\(.\+\),[0-9]\+/\1/"|sed "s/\(.\+\),0/$RED□ \1$RESET_COLOR/"|sed "s/\(.\+\),1/$GREEN✓ \1$RESET_COLOR/")"
+            echo -e "$(echo $line|sed -r "s/(.+),[0-9]+/\1/"|sed -r "s/(.+),0/$RED□ \1$RESET_COLOR/"|sed -r "s/(.+),1/$GREEN✓ \1$RESET_COLOR/")"
             ((line_index++))
         done <"$TODO_FILE" ;;
 
