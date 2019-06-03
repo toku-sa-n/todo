@@ -34,7 +34,7 @@ EOF
 
 show_help_if_argument_is_null () {
     # $1 is the number of needed arguments.
-    for argument_index in `seq $1`
+    for argument_index in $(seq $1)
     do
         if [ "${ARGV[$argument_index]}" = "" ]; then
             show_help
@@ -84,11 +84,11 @@ case "${ARGV[0]}" in
         line=${ARGV[1]}
         while true
         do
-            if [ $line -gt `wc -l $TODO_FILE|awk '{print $1}'` ]; then
+            if [ $line -gt $(wc -l $TODO_FILE|awk '{print $1}') ]; then
                 exit
             fi
 
-            level=`cat $TODO_FILE|awk -F "," '{print $3}'|sed -n "$line p"`
+            level=$(cat $TODO_FILE|awk -F "," '{print $3}'|sed -n "$line p")
             if [ $level -eq 0 ]; then
                 exit
             fi
@@ -103,7 +103,7 @@ case "${ARGV[0]}" in
         is_number ${ARGV[1]}
 
         # Get the level of parent todo.
-        parent_level=`cat $TODO_FILE|sed -n "${ARGV[1]} p "|sed 's/.\+,\([0-9]\+\)/\1/'`
+        parent_level=$(cat $TODO_FILE|sed -n "${ARGV[1]} p "|sed 's/.\+,\([0-9]\+\)/\1/')
         ((parent_level+=1))
         sed "${ARGV[1]}"' a '"${ARGV[2]},0,${parent_level}" -i $TODO_FILE ;;
 
@@ -120,7 +120,7 @@ case "${ARGV[0]}" in
             todo_level=$(echo $line|sed -r "s/.+,([0-9]+)/\1/")
             indent_arrow=""
             if [ ${todo_level} -ne 0 ]; then
-                for i in `seq $todo_level`
+                for i in $(seq $todo_level)
                 do
                     indent_arrow+="-"
                 done
