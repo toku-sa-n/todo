@@ -4,7 +4,7 @@
 # {content of todo},{done(1) or undone(0)},{level}
 # level: 0 is root. level of subtodos starts from 1.
 
-TODO_FILE=~/.todo
+TODO_FILE=$(readlink ~/.todo||echo ~/.todo)
 
 RED='\\e[31m'
 GREEN='\\e[32m'
