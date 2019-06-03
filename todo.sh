@@ -117,7 +117,7 @@ case "${ARGV[0]}" in
             printf "%${digit_number}d " $line_index
 
             # Check whether todo is a subgoal or not.
-            todo_level=$(echo $line|sed "s/.\+,\([0-9]\+\)/\1/")
+            todo_level=$(echo $line|sed -r "s/.+,([0-9]+)/\1/")
             indent_arrow=""
             if [ ${todo_level} -ne 0 ]; then
                 for i in `seq $todo_level`
@@ -127,7 +127,7 @@ case "${ARGV[0]}" in
                 echo -n "$indent_arrow> "
             fi
 
-            echo -e "$(echo $line|sed "s/\(.\+\),[0-9]\+/\1/"|sed "s/\(.\+\),0/$RED□ \1$RESET_COLOR/"|sed "s/\(.\+\),1/$GREEN✓ \1$RESET_COLOR/")"
+            echo -e "$(echo $line|sed -r "s/(.+),[0-9]+/\1/"|sed -r "s/(.+),0/$RED□ \1$RESET_COLOR/"|sed -r "s/(.+),1/$GREEN✓ \1$RESET_COLOR/")"
             ((line_index++))
         done <"$TODO_FILE" ;;
 
