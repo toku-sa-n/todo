@@ -12,10 +12,12 @@ GREEN='\\e[32m'
 RESET_COLOR='\\e[m'
 
 # Because from inside a function, we can't refer to command line arguments,
-# introduce ARGV array so that refer to command line arguments.
+# introduce ARGV array in order to refer to command line arguments.
 ARGV=("$@")
 
+# If todo file doesn't exist, create it.
 touch $TODO_FILE
+
 show_help () {
 cat<<EOF
 Usage: todo COMMAND ARGUMENTS
