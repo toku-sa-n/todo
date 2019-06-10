@@ -120,7 +120,9 @@ case "${ARGV[0]}" in
 
     "show" )
         # To arrange the vertical line of the indexes, calculate the digits.
-        digit_number=$(echo $(wc -l $TODO_FILE|awk '{print $1}')/10+1|bc)
+        digit_number=$(wc -l $TODO_FILE|
+            gawk 'function log10(number){return log(number)/log(10.0)}
+                    {print int(log10($1))+1}')
         line_index=1
 
         while IFS=: read -r line
