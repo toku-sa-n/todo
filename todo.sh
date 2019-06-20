@@ -86,12 +86,12 @@ case "${ARGV[0]}" in
     "check" )
         show_help_if_argument_is_null 1
         is_number ${ARGV[1]}
-        sed -r "${ARGV[1]}"'s/(\w+),0,([0-9]+)/\1,1,\2/' -i $TODO_FILE ;;
+        sed -r "${ARGV[1]}"'s/(.+),0,([0-9]+)/\1,1,\2/' -i $TODO_FILE ;;
 
     "uncheck" )
         show_help_if_argument_is_null 1
         is_number ${ARGV[1]}
-        sed -r "${ARGV[1]}"'s/(\w+),1,([0-9]+)/\1,0,\2/' -i $TODO_FILE ;;
+        sed -r "${ARGV[1]}"'s/(.+),1,([0-9]+)/\1,0,\2/' -i $TODO_FILE ;;
 
     "change" )
         show_help_if_argument_is_null 2
